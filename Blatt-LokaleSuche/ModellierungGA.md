@@ -19,11 +19,11 @@ Bei einer zufälligen Koordinate wird entweder der x oder der y Wert um entweder
 
 Die Damen werden nacheinander auf dem Brett platziert, für jede die auf ein inkorrektes Feld platziert wird 1 punkt abgezogen.
 
-n: Anzahl der Damen die auf invaliden Feldern platziert wurden.
+n: Summe der menge an Damen jeder Dame die diese Dame blockieren.
 
-Fitness = 8 - n
+Fitness = 56 - n
 
-Bei Fitness von 8 (n = 0) ist das Problem gelöst. Ich hoffe dass sich mit dieser Funktion die Anzahl der invaliden Damen sich verrrigert bis das Problem (hoffentlich) irgendwann gelöst ist.
+Jede der 8 Damen kann von maximal 7 anderen Damen blockiert werden, somit kann n maximal einen Wert von 56 erreichen
 
 ### Simulated Annealing
 
