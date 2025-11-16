@@ -1,3 +1,5 @@
+import random
+
 class CSP:
     def __init__(self):
         self.constraints = [] 
@@ -24,20 +26,21 @@ class House:
         self.cigarres = None
     
     def Solved(self):
-         return self.number != None and self.color != None and self.nationality != None and self.pet != None and self.drink != None and self.cigarres != None
+        return self.number is not None and self.color is not None and self.nationality is not None and self.pet is not None and self.drink is not None and self.cigarres is not None
     def PrintMe(self):
         print(f"{self.number}, {self.color}, {self.nationality}, {self.pet}, {self.drink}, {self.cigarres}")
 
 
 
 def CheckConstraints(CSPs, houses):
-    for c in CSPs:
+    for i in range(len(CSPs)):
+        c = CSPs[i]
         if c.needs2Houses:
             for h1 in houses:
                 for h2 in houses:
                     if(h1 != h2):
                         if(not c.consistent(h1, h2)):
-                           return False
+                            return False
         else:
             for h1 in houses:
                 if(not c.consistent(h1, None)):
@@ -50,14 +53,18 @@ def AllSolved(houses):
             return False
     return True
 
-def removeFromList(list, e):
-    result = [i for i in list if i != e]
+def removeFromList(list_, e):
+    result = [i for i in list_ if i != e]
     return result
 
 
 def BTSearch(houses, CSPs, numbers, colors, nationalities, pets, drinks, cigarettes, index, value):
     if(AllSolved(houses) and CheckConstraints(CSPs, houses)):
         return True
+    
+    if(index >= len(houses)):
+        return False
+
     if(value == 0):
         for n in numbers:
             houses[index].number = n
@@ -102,11 +109,11 @@ def BTSearch(houses, CSPs, numbers, colors, nationalities, pets, drinks, cigaret
         for n in cigarettes:
             houses[index].cigarres = n
             if(CheckConstraints(CSPs, houses)):
-                if(index+1 < len(houses)):
-                    if(BTSearch(houses, CSPs, numbers , colors, nationalities, pets, drinks, removeFromList(cigarettes, n), index+1, 0)):
-                        return True
+                if(BTSearch(houses, CSPs, numbers , colors, nationalities, pets, drinks, removeFromList(cigarettes, n), index+1, 0)):
+                    return True
         houses[index].cigarres = None
         return False
+    return False
     
     
     
@@ -119,6 +126,13 @@ pets = ["Fuchs","Pferd","Schnecken","Hund","Zebra"]
 drinks = ["Wasser","Tee","Milch","O-Saft","Kaffee"]
 cigarettes = ["Kools", "Chesterfield", "OldGold", "LuckyStrike", "Parliaments"]
 
+random.shuffle(numbers)
+random.shuffle(colors)
+random.shuffle(nationalities)
+random.shuffle(pets)
+random.shuffle(drinks)
+random.shuffle(cigarettes)
+
 CSPs = [CSP() for i in range(14)]
 
 #Der Engländer wohnt im roten Haus.
@@ -127,7 +141,7 @@ CSPs[0].constraints.append(lambda a : a.color == None or a.nationality == None o
 
 #Der Spanier hat einen Hund.
 CSPs[1].needs2Houses=False
-CSPs[1].constraints.append(lambda a : a.pet == None or a.nationality == None or (a.pet == "Hund") == (a.nationality == "Spanier" ))
+CSPs[1].constraints.append(lambda a : a.pet == None or a.nationality == None or (a.pet == "Hund") == (a.nationality == "Spanier"))
 
 #Kaffee wird im grünen Haus getrunken.
 CSPs[2].needs2Houses=False
@@ -139,7 +153,7 @@ CSPs[3].constraints.append(lambda a :  a.drink == None or a.nationality == None 
 
 #Das grüne Haus ist direkt rechts vom weißen Haus.
 CSPs[4].needs2Houses = True
-CSPs[4].constraints.append(lambda a, b : a.color == None or b.color == None or not ((a.color == "grün") and (b.color == "weiß")) or a.number==None or b.number==None or (a.number - b.number == 1) )
+CSPs[4].constraints.append(lambda a, b : (a.color == None or b.color == None or not ((a.color == "grün") and (b.color == "weiß")) or a.number==None or b.number==None or (a.number - b.number == 1)))
 
 #Der Raucher von Old-Gold-Zigaretten hält Schnecken als Haustiere.
 CSPs[5].needs2Houses=False
@@ -159,11 +173,11 @@ CSPs[8].constraints.append(lambda a : a.number == None or a.nationality == None 
 
 #Der Mann, der Chesterfield raucht, wohnt neben dem Mann mit dem Fuchs.
 CSPs[9].needs2Houses = True
-CSPs[9].constraints.append(lambda a, b : a.cigarres==None or b.pet == None or not ((a.cigarres == "Chesterfield") and (b.pet == "Fuchs")) or a.number==None or b.number==None or (abs(a.number - b.number) == 1) )
+CSPs[9].constraints.append(lambda a, b : (a.cigarres==None or b.pet == None or not ((a.cigarres == "Chesterfield") and (b.pet == "Fuchs")) or a.number==None or b.number==None or (abs(a.number - b.number) == 1)) and not(a.cigarres=="Chesterfield" and a.pet=="Fuchs") )
 
 #Die Marke Kools wird geraucht im Haus neben dem Haus mit dem Pferd.
 CSPs[10].needs2Houses = True
-CSPs[10].constraints.append(lambda a, b :a.cigarres == None or b.pet == None or not ((a.cigarres == "Kools") and (b.pet == "Pferd" ) ) or a.number ==None or b.number==None or (abs(a.number - b.number) == 1))
+CSPs[10].constraints.append(lambda a, b :(a.cigarres == None or b.pet == None or not ((a.cigarres == "Kools") and (b.pet == "Pferd" )) or a.number ==None or b.number==None or (abs(a.number - b.number) == 1)) and not(a.cigarres=="Kools" and a.pet=="Pferd"))
 #Der Lucky-Strike-Raucher trinkt am liebsten Orangensaft.
 CSPs[11].needs2Houses = False
 CSPs[11].constraints.append(lambda a : a.cigarres == None or a.drink == None or (a.cigarres == "LuckyStrike") == (a.drink == "O-Saft"))
@@ -172,7 +186,7 @@ CSPs[12].needs2Houses = False
 CSPs[12].constraints.append(lambda a : a.cigarres == None or a.nationality == None or (a.cigarres == "Parliaments") == (a.nationality == "Japaner"))
 #Der Norweger wohnt neben dem blauen Haus.
 CSPs[13].needs2Houses = True
-CSPs[13].constraints.append(lambda a, b : a.nationality == None or b.color == None or not ((a.nationality == "Norweger") and (b.color == "blau")) or a.number ==None or b.number==None or (abs(a.number - b.number) == 1))
+CSPs[13].constraints.append(lambda a, b : (a.nationality == None or b.color == None or not ((a.nationality == "Norweger") and (b.color == "blau")) or a.number ==None or b.number==None or (abs(a.number - b.number) == 1)) and not (a.nationality=="Norweger" and a.color=="blau"))
 
 
 
